@@ -2,25 +2,20 @@
 #include "vec3.h"
 #include "color.h"
 #include "ray.h"
+#include "sphere.h"
 
 #define ASPECT_RATIO (16.0 / 9.0)
 #define IMAGE_WIDTH 400
 #define IMAGE_HEIGHT (static_cast<int>(IMAGE_WIDTH / ASPECT_RATIO))
 
-bool hit_sphere(const point3& center, double radius, const ray& r)
-{
-	vec3<double> CA = r.m_origin - center;
-	double A = dot(r.m_direction, r.m_direction);
-	double B = 2 * dot(r.m_direction, CA);
-	double C = dot(CA, CA) - radius * radius;
-	double discriminant = B * B - 4 * A * C;
-	return (discriminant > 0);
-}
-
 color rayColor(const ray& r)
 {
-	if (hit_sphere(point3(0, 0, -1), -0.5, r))
-		return color(0.5, 0, 0);
+	sphere s{ point3(0, 0, -1), 0.5 };
+	hitRecord h;
+	if (s.hit(r, -100, 100, h))
+		return 0.5 * color(h.normal.m_x + 1, h.normal.m_y + 1, h.normal.m_z + 1);
+
+	// Background
 	vec3<double> unitDirection = normalize(r.m_direction);
 	// m_y increases untill center, then decreases. It can get negative values
 	double t = 0.5 * (unitDirection.m_y + 1.0);
@@ -40,7 +35,6 @@ int main()
 
 
 	std::cout << "P3\n" << IMAGE_WIDTH << ' ' << IMAGE_HEIGHT << "\n255\n";
-
 	
 	for (int j = IMAGE_HEIGHT - 1; j >= 0; --j)
 	{

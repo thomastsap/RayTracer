@@ -46,17 +46,17 @@ struct vec3
 
 	vec3& operator += (const vec3& v)
 	{
-		m_x += v.x;
-		m_y += v.y;
-		m_z += v.z;
+		m_x += v.m_x;
+		m_y += v.m_y;
+		m_z += v.m_z;
 		return (*this);
 	}
 
 	vec3& operator -= (const vec3& v)
 	{
-		m_x -= v.x;
-		m_y -= v.y;
-		m_z -= v.z;
+		m_x -= v.m_x;
+		m_y -= v.m_y;
+		m_z -= v.m_z;
 		return (*this);
 	}
 };
