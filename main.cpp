@@ -1,19 +1,22 @@
 #include <iostream>
-#include "vec3.h"
 #include "color.h"
-#include "ray.h"
 #include "sphere.h"
+#include "hittable_list.h"
+#include "ray_tracer.h"
+#include "camera.h"
 
 #define ASPECT_RATIO (16.0 / 9.0)
 #define IMAGE_WIDTH 400
 #define IMAGE_HEIGHT (static_cast<int>(IMAGE_WIDTH / ASPECT_RATIO))
 
-color rayColor(const ray& r)
+color rayColor(const ray& r, const hittable& world)
 {
-	sphere s{ point3(0, 0, -1), 0.5 };
-	hitRecord h;
-	if (s.hit(r, -100, 100, h))
-		return 0.5 * color(h.normal.m_x + 1, h.normal.m_y + 1, h.normal.m_z + 1);
+	
+	hitRecord rec;
+	if (world.hit(r, 0, infinity, rec))
+	{
+		return 0.5 * color(rec.normal.m_x + 1, rec.normal.m_y + 1, rec.normal.m_z + 1);
+	}
 
 	// Background
 	vec3<double> unitDirection = normalize(r.m_direction);
@@ -24,15 +27,13 @@ color rayColor(const ray& r)
 
 int main()
 {
-	double viewportHeight = 2.0;
-	double viewportWidth = viewportHeight * ASPECT_RATIO;
-	double focalLength = 1.0; 
+	hittable_list world;
+	world.add(make_shared<sphere>(point3(0, 0, -1), 0.5));
+	world.add(make_shared<sphere>(point3(0, -100.5, -1), 100));
 
-	point3 origin{ 0, 0, 0 };
-	vec3<double> horizontal{ viewportWidth, 0, 0 };
-	vec3<double> vertical{ 0, viewportHeight, 0 };
-	point3 lowerLeftCorner = origin - vec3<double>(0, 0, focalLength) - vertical / 2 - horizontal / 2;
 
+	camera cam;
+	const int samplesPerPixel = 100;
 
 	std::cout << "P3\n" << IMAGE_WIDTH << ' ' << IMAGE_HEIGHT << "\n255\n";
 	
@@ -41,11 +42,15 @@ int main()
 		std::cerr << "\r Scanlines remaining: " << j << ' ' << std::flush;
 		for (int i = 0; i < IMAGE_WIDTH; ++i)
 		{
-			double u = (double(i) + 0.5) / IMAGE_WIDTH;
-			double v = (double(j) + 0.5) / IMAGE_HEIGHT;
-			ray r{ origin, lowerLeftCorner + u * horizontal + v * vertical - origin };
-			color pixelColor = rayColor(r);
-			writeColor(std::cout, pixelColor);
+			color accPixelColor{ 0, 0, 0 };
+			for (int s = 0; s < samplesPerPixel; s++)
+			{
+				double u = (i + randomDouble()) / (IMAGE_WIDTH - 1);
+				double v = (j + randomDouble()) / (IMAGE_HEIGHT - 1);
+				ray r = cam.getRay(u, v);
+				accPixelColor += rayColor(r, world);
+			}			
+			writeColor(std::cout, accPixelColor, samplesPerPixel);
 		}
 	}
 	std::cerr << "\nDone. \n";
