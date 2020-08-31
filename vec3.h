@@ -3,6 +3,11 @@
 
 #include <cmath>
 
+
+inline double randomDouble();
+inline double randomDouble(double min, double max);
+extern const double pi;
+
 template <typename T>
 struct vec3
 {
@@ -58,6 +63,16 @@ struct vec3
 		m_y -= v.m_y;
 		m_z -= v.m_z;
 		return (*this);
+	}
+
+	inline static vec3 random()
+	{
+		return vec3(randomDouble(), randomDouble(), randomDouble());
+	}
+
+	inline static vec3 random(double min, double max)
+	{
+		return vec3(randomDouble(min, max), randomDouble(min, max), randomDouble(min, max));
 	}
 };
 
@@ -128,6 +143,33 @@ inline vec3<T> cross(const vec3<T>& v1, const vec3<T>& v2)
 	return vec3<T>(	v1.m_y * v2.m_z - v1.m_z * v2.m_y,
 					v1.m_z * v2.m_x - v1.m_x * v2.m_z,
 					v1.m_x * v2.m_y - v1.m_y - v2.m_x);
+}
+
+vec3<double> randomInUnitSphere()
+{
+	while (true)
+	{
+		vec3<double> p = vec3<double>::random(-1, 1);
+		if (magnitudeSquared(p) >= 1) continue;
+		return p;
+	}
+}
+
+vec3<double> randomUnitVector() {
+	// Cylindrical coordinate system
+	double a = randomDouble(0, 2 * pi);
+	double z = randomDouble(-1, 1);
+	double r = sqrt(1 - z * z);
+	return vec3<double>(r  * cos(a), r * sin(a), z);
+}
+
+vec3<double> randomInHemisphere(const vec3<double>& normal)
+{
+	vec3<double> inUnitSphere = randomInUnitSphere();
+	if (dot(inUnitSphere, normal) > 0.0)
+		return inUnitSphere;
+	else
+		return -inUnitSphere;
 }
 
 using point3 = vec3<double>;

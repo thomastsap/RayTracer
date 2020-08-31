@@ -9,13 +9,16 @@
 #define IMAGE_WIDTH 400
 #define IMAGE_HEIGHT (static_cast<int>(IMAGE_WIDTH / ASPECT_RATIO))
 
-color rayColor(const ray& r, const hittable& world)
+color rayColor(const ray& r, const hittable& world, int depth)
 {
+	if (depth <= 0)
+		return color(0, 0, 0);
 	
 	hitRecord rec;
-	if (world.hit(r, 0, infinity, rec))
+	if (world.hit(r, 0.001, infinity, rec))
 	{
-		return 0.5 * color(rec.normal.m_x + 1, rec.normal.m_y + 1, rec.normal.m_z + 1);
+		point3 target = rec.point + rec.normal + randomInHemisphere(rec.normal);
+		return 0.5 * rayColor(ray(rec.point, target - rec.point), world, depth - 1);
 	}
 
 	// Background
@@ -34,6 +37,7 @@ int main()
 
 	camera cam;
 	const int samplesPerPixel = 100;
+	const int max_depth = 50;
 
 	std::cout << "P3\n" << IMAGE_WIDTH << ' ' << IMAGE_HEIGHT << "\n255\n";
 	
@@ -48,7 +52,7 @@ int main()
 				double u = (i + randomDouble()) / (IMAGE_WIDTH - 1);
 				double v = (j + randomDouble()) / (IMAGE_HEIGHT - 1);
 				ray r = cam.getRay(u, v);
-				accPixelColor += rayColor(r, world);
+				accPixelColor += rayColor(r, world, max_depth);
 			}			
 			writeColor(std::cout, accPixelColor, samplesPerPixel);
 		}

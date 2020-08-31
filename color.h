@@ -11,9 +11,9 @@ void writeColor(std::ostream &out, color pixelColor, int samplesPerPixel)
 	double b = pixelColor.m_z;
 
 	double scale = 1.0 / samplesPerPixel;
-	r *= scale;
-	g *= scale;
-	b *= scale;
+	r = sqrt(scale * r);
+	g = sqrt(scale * g);
+	b = sqrt(scale * b);
 
 
 	out << static_cast<int>(256 * clamp(r, 0.0, 0.999)) << ' '
