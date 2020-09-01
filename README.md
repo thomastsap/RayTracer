@@ -15,7 +15,14 @@ Motivated by [Minecraft with RTX](https://www.nvidia.com/en-us/geforce/news/mine
 </p>
 </figure>
 
-
+## Update 2
+<figure>
+<p align="center">
+    <img src="https://user-images.githubusercontent.com/33458365/91812585-0850e900-ec3a-11ea-9efe-551322e99c9e.png" >
+    <br>
+    <em> Figure 1. Diffuse materials  </em>
+</p>
+</figure>
 
 ## References
 1) [Ray Tracing in One Weekend](https://raytracing.github.io/)
